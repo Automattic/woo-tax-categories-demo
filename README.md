@@ -1,5 +1,7 @@
 # Tax Categories for WooCommerce: core prototype
 
+**[→ Try it in WordPress Playground (EU store)](https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fbright-willow.view.fast%2Fblueprint-eu.json)** &nbsp;·&nbsp; [US store (state exceptions)](https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fbright-willow.view.fast%2Fblueprint.json) &nbsp;·&nbsp; [US acceptance example (cart pre-filled)](https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fbright-willow.view.fast%2Fblueprint.json&url=%2Fwctc-acceptance.php)
+
 A working prototype of the proposal in **Tax Categories for WooCommerce: Requirements Scope**, so you can try it on a real store. The proposal is a core feature. This is packaged as a plugin only so it's easy to install and remove on a test site.
 
 What it does:
