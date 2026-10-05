@@ -1,6 +1,6 @@
 # Tax Categories for WooCommerce: core prototype
 
-**[→ Try it in WordPress Playground](https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fbright-willow.view.fast%2Fblueprint.json)**
+**[→ Try it in WordPress Playground](https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fbright-willow.view.fast%2Fblueprint.json)** &nbsp;·&nbsp; **[Read the P2 post and leave review notes →](https://wootaxp2.wordpress.com/2026/10/05/tax-categories-for-woocommerce-a-working-prototype-and-a-request-for-review/)**
 
 A working prototype of the proposal in **Tax Categories for WooCommerce: Requirements Scope**, so you can try it on a real store. The proposal is a core feature. This is packaged as a plugin only so it's easy to install and remove on a test site.
 
