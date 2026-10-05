@@ -203,20 +203,35 @@ class Settings {
 			<h2 id="wctc-h-rules"><?php esc_html_e( 'Category rules', 'wctc' ); ?></h2>
 			<p class="desc"><?php esc_html_e( 'Each rule sends a tax category to one of your tax classes in a place. Rates still come from your tax rate tables. Products with no category, or shipped somewhere with no rule, keep their own tax class. The most specific matching rule wins. Leave price and dates empty to always apply.', 'wctc' ); ?></p>
 			<table class="widefat striped" id="wctc-t-rules">
-				<thead><tr><th><?php esc_html_e( 'Tax category', 'wctc' ); ?></th><th><?php esc_html_e( 'Country', 'wctc' ); ?></th><th><?php esc_html_e( 'State', 'wctc' ); ?></th><th><?php esc_html_e( 'Postcode / ZIP', 'wctc' ); ?></th><th><?php echo esc_html( sprintf( __( 'Price per item (%s)', 'wctc' ), get_woocommerce_currency() ) ); ?> <span class="woocommerce-help-tip" data-tip="<?php esc_attr_e( 'A per-item price limit. In Cliff mode, items under this amount are taxed at the rule\'s class; items at or over it use the next matching rule or their own class (NY: Clothing under $110 → Zero rate). In Excess mode, items below the limit are fully exempt and only the price above the limit is taxed (MA: Clothing, first $175 exempt). Leave blank for "any price" (cliff only).', 'wctc' ); ?>"></span></th><th><?php esc_html_e( 'Limit mode', 'wctc' ); ?></th><th><?php esc_html_e( 'Uses tax class', 'wctc' ); ?></th><th><?php esc_html_e( 'Rate there', 'wctc' ); ?></th><th><?php esc_html_e( 'From', 'wctc' ); ?></th><th><?php esc_html_e( 'Until', 'wctc' ); ?></th><th><?php esc_html_e( 'Remove', 'wctc' ); ?></th></tr></thead>
+				<thead><tr><th><?php esc_html_e( 'Tax category', 'wctc' ); ?></th><th><?php esc_html_e( 'Country', 'wctc' ); ?></th><th><?php esc_html_e( 'State', 'wctc' ); ?></th><th><?php esc_html_e( 'Postcode / ZIP', 'wctc' ); ?></th><th><?php echo esc_html( sprintf( __( 'Price per item (%s)', 'wctc' ), get_woocommerce_currency() ) ); ?> <span class="woocommerce-help-tip" data-tip="<?php esc_attr_e( 'A per-item price limit. Enter an amount and a follow-up question appears below so you can say how the limit works: "only applies under the limit" (NY: Clothing under $110 → Zero), or "exempt the first N of every item" (MA: Clothing, first $175 exempt). Leave blank to apply at any price.', 'wctc' ); ?>"></span></th><th><?php esc_html_e( 'Uses tax class', 'wctc' ); ?></th><th><?php esc_html_e( 'Rate there', 'wctc' ); ?></th><th><?php esc_html_e( 'From', 'wctc' ); ?></th><th><?php esc_html_e( 'Until', 'wctc' ); ?></th><th><?php esc_html_e( 'Remove', 'wctc' ); ?></th></tr></thead>
 				<tbody>
-				<?php $dups      = Engine::duplicate_category_rules( $rules ); ?>
-				<?php $mode_opts = Engine::limit_modes(); ?>
+				<?php $dups = Engine::duplicate_category_rules( $rules ); ?>
+				<?php $symbol = get_woocommerce_currency_symbol(); ?>
 				<?php foreach ( array_merge( $rules, array( null ) ) as $i => $rule ) : ?>
 					<?php $rule = $rule ?? array( 'category' => '', 'country' => '', 'state' => '*', 'postcode' => '*', 'max_price' => '', 'tax_class' => 'zero-rate', 'limit_mode' => Engine::LIMIT_CLIFF, 'start' => '', 'end' => '' ); ?>
-					<?php $mode = ( $rule['limit_mode'] ?? Engine::LIMIT_CLIFF ) === Engine::LIMIT_EXCESS ? Engine::LIMIT_EXCESS : Engine::LIMIT_CLIFF; ?>
+					<?php $mode  = ( $rule['limit_mode'] ?? Engine::LIMIT_CLIFF ) === Engine::LIMIT_EXCESS ? Engine::LIMIT_EXCESS : Engine::LIMIT_CLIFF; ?>
+					<?php $price = (string) $rule['max_price']; ?>
+					<?php $has_price = '' !== trim( $price ); ?>
+					<?php $price_display = $has_price ? ( $symbol . $price ) : esc_html__( 'the limit', 'wctc' ); ?>
 					<tr<?php echo isset( $dups[ $i ] ) ? ' class="wctc-dup"' : ''; ?>>
 						<td><?php echo self::select( "wctc_rule[$i][category]", $cat_opts, $rule['category'] ); // phpcs:ignore ?></td>
 						<td><?php echo self::country_select( "wctc_rule[$i][country]", $rule['country'] ); // phpcs:ignore ?></td>
 						<td><?php echo self::state_input( "wctc_rule[$i][state]", $rule['state'] ); // phpcs:ignore ?></td>
 						<td><input type="text" class="small" name="wctc_rule[<?php echo (int) $i; ?>][postcode]" value="<?php echo esc_attr( $rule['postcode'] ); ?>" placeholder="*"></td>
-						<td><span class="wctc-muted"><?php echo esc_html( get_woocommerce_currency_symbol() ); ?></span> <input type="text" class="small wctc-price" name="wctc_rule[<?php echo (int) $i; ?>][max_price]" value="<?php echo esc_attr( $rule['max_price'] ); ?>" placeholder="<?php esc_attr_e( 'any', 'wctc' ); ?>" inputmode="decimal"></td>
-						<td><?php echo self::select( "wctc_rule[$i][limit_mode]", $mode_opts, $mode ); // phpcs:ignore ?></td>
+						<td class="wctc-price-cell">
+							<span class="wctc-muted"><?php echo esc_html( $symbol ); ?></span>
+							<input type="text" class="small wctc-price" name="wctc_rule[<?php echo (int) $i; ?>][max_price]" value="<?php echo esc_attr( $price ); ?>" placeholder="<?php esc_attr_e( 'any', 'wctc' ); ?>" inputmode="decimal">
+							<?php // Progressive disclosure: only ask HOW the limit works once there is a limit. The two radios save to the same limit_mode field. ?>
+							<div class="wctc-limit-mode"<?php echo $has_price ? '' : ' style="display:none"'; ?>>
+								<p class="wctc-cond-q"><?php esc_html_e( 'How does this limit work?', 'wctc' ); ?></p>
+								<label><input type="radio" name="wctc_rule[<?php echo (int) $i; ?>][limit_mode]" value="<?php echo esc_attr( Engine::LIMIT_CLIFF ); ?>"<?php echo Engine::LIMIT_CLIFF === $mode ? ' checked' : ''; ?>> <span class="wctc-limit-text" data-template="<?php esc_attr_e( 'The rule only applies to items under %s (otherwise skip to the next matching rule). Example: NY Clothing under $110 → Zero rate.', 'wctc' ); ?>"><?php echo esc_html( sprintf( __( 'The rule only applies to items under %s (otherwise skip to the next matching rule). Example: NY Clothing under $110 → Zero rate.', 'wctc' ), $price_display ) ); ?></span></label>
+								<label><input type="radio" name="wctc_rule[<?php echo (int) $i; ?>][limit_mode]" value="<?php echo esc_attr( Engine::LIMIT_EXCESS ); ?>"<?php echo Engine::LIMIT_EXCESS === $mode ? ' checked' : ''; ?>> <span class="wctc-limit-text" data-template="<?php esc_attr_e( 'Exempt the first %s of every item; tax the rest at the rule\'s class. Example: MA Clothing, first $175 exempt.', 'wctc' ); ?>"><?php echo esc_html( sprintf( __( 'Exempt the first %s of every item; tax the rest at the rule\'s class. Example: MA Clothing, first $175 exempt.', 'wctc' ), $price_display ) ); ?></span></label>
+							</div>
+							<?php // When there is no price, carry the mode via a hidden input so a non-limited row doesn't lose it on save. ?>
+							<?php if ( ! $has_price ) : ?>
+								<input type="hidden" class="wctc-limit-fallback" name="wctc_rule[<?php echo (int) $i; ?>][limit_mode]" value="<?php echo esc_attr( $mode ); ?>">
+							<?php endif; ?>
+						</td>
 						<td><?php echo self::select( "wctc_rule[$i][tax_class]", $classes, $rule['tax_class'] ); // phpcs:ignore ?></td>
 						<td class="wctc-rate-there" aria-live="polite"><?php echo ( $i < count( $rules ) || '' !== trim( (string) $rule['country'] ) ) ? wp_kses_post( self::rate_there( $rule ) ) : '<span class="wctc-muted">' . esc_html__( 'Pick a place', 'wctc' ) . '</span>'; ?><?php if ( isset( $dups[ $i ] ) ) : ?><br><span class="wctc-dup-note" style="color:#d63638"><?php echo esc_html( sprintf( __( 'Same as row %d, which wins. Remove one.', 'wctc' ), $dups[ $i ] + 1 ) ); ?></span><?php endif; ?></td>
 						<td><input type="date" name="wctc_rule[<?php echo (int) $i; ?>][start]" value="<?php echo esc_attr( $rule['start'] ); ?>"></td>
@@ -226,6 +241,45 @@ class Settings {
 				<?php endforeach; ?>
 				</tbody>
 			</table>
+			<style>
+				.wctc .wctc-price-cell .wctc-limit-mode { margin-top: 8px; padding: 8px 10px; background: #f6f7f7; border-left: 3px solid #7a4fc9; border-radius: 4px; font-size: 12.5px; color: #1d2327; max-width: 420px; }
+				.wctc .wctc-price-cell .wctc-cond-q { margin: 0 0 6px; font-weight: 600; }
+				.wctc .wctc-price-cell .wctc-limit-mode label { display: block; margin: 4px 0; cursor: pointer; }
+				.wctc .wctc-price-cell .wctc-limit-mode label input { margin-right: 6px; vertical-align: top; margin-top: 3px; }
+			</style>
+			<script>
+			( function ( $ ) {
+				// Progressive disclosure for the per-rule price limit. The two radios ("only under the limit"
+				// vs "first N exempt") are kept out of sight until the merchant types a price. The amount in
+				// the label updates live as they type, so the question reads with the actual number.
+				var SYMBOL = <?php echo wp_json_encode( get_woocommerce_currency_symbol() ); ?>;
+				var ANY    = <?php echo wp_json_encode( __( 'the limit', 'wctc' ) ); ?>;
+				$( '#wctc-t-rules' ).on( 'input', '.wctc-price', function () {
+					var $cell  = $( this ).closest( 'td.wctc-price-cell' );
+					var value  = $( this ).val().trim();
+					var $block = $cell.find( '.wctc-limit-mode' );
+					if ( value ) {
+						$block.show();
+						$cell.find( '.wctc-limit-fallback' ).remove();
+						// Update the amount in the labels (template has one %s placeholder).
+						var display = SYMBOL + value;
+						$block.find( '.wctc-limit-text' ).each( function () {
+							$( this ).text( $( this ).data( 'template' ).replace( '%s', display ) );
+						} );
+					} else {
+						$block.hide();
+						// Carry the chosen mode in a hidden input so save still gets a value.
+						if ( ! $cell.find( '.wctc-limit-fallback' ).length ) {
+							var chosen   = $cell.find( '.wctc-limit-mode input[type="radio"]:checked' ).val() || '<?php echo esc_js( Engine::LIMIT_CLIFF ); ?>';
+							var nameAttr = $cell.find( '.wctc-limit-mode input[type="radio"]' ).first().attr( 'name' );
+							if ( nameAttr ) {
+								$cell.append( '<input type="hidden" class="wctc-limit-fallback" name="' + nameAttr + '" value="' + chosen + '">' );
+							}
+						}
+					}
+				} );
+			}( jQuery ) );
+			</script>
 			<script>
 			( function ( $ ) {
 				var nonce = <?php echo wp_json_encode( wp_create_nonce( 'wctc_rate_there' ) ); ?>;
@@ -293,24 +347,70 @@ class Settings {
 			</script>
 
 			<h2 id="wctc-h-shipping"><?php esc_html_e( 'Shipping rules', 'wctc' ); ?></h2>
-			<p class="desc"><?php esc_html_e( 'Exceptions to "shipping follows the goods". With tax categories on, every place without a rule here taxes shipping like the items in the box, split by value. Add a rule for places that exempt shipping, always tax it, or treat a mixed basket differently. The most specific place wins (postcode over state over country). "Conditions met" is your one-time answer for places that exempt shipping only under conditions (for example California: common carrier or USPS, at or below actual cost) or that depend on delivery terms.', 'wctc' ); ?></p>
+			<p class="desc"><?php esc_html_e( 'Exceptions to "shipping follows the goods". With tax categories on, every place without a rule here taxes shipping like the items in the box, split by value. Add a rule for places that exempt shipping, always tax it, or treat a mixed basket differently. The most specific place wins (postcode over state over country). For places whose answer depends on how you ship (California, South Carolina, Illinois), a follow-up question appears under the choice.', 'wctc' ); ?></p>
 			<table class="widefat striped" id="wctc-t-shipping">
-				<thead><tr><th><?php esc_html_e( 'Country', 'wctc' ); ?></th><th><?php esc_html_e( 'State', 'wctc' ); ?></th><th><?php esc_html_e( 'Postcode / ZIP', 'wctc' ); ?></th><th><?php esc_html_e( 'Shipping is taxed', 'wctc' ); ?></th><th><?php esc_html_e( 'Conditions met', 'wctc' ); ?> <span class="woocommerce-help-tip" data-tip="<?php esc_attr_e( 'One answer per place: whether this store meets the carrier / delivery-terms test (common carrier or USPS, at or below actual cost, stated separately). Prototype limitation: if your shipping varies by method (for example USPS Priority for most orders, hand-delivery for local pickup), the answer applies to all methods for this place. Workaround: leave the rule off and shipping will follow the goods for this state.', 'wctc' ); ?>"></span></th><th><?php esc_html_e( 'Mixed basket', 'wctc' ); ?> <span class="woocommerce-help-tip" data-tip="<?php esc_attr_e( 'When the box holds goods taxed at different rates. Split by value (most places) or by weight (Minnesota) apportions the charge. Belgium lets you tax the whole charge at the lowest rate in the box. Illinois taxes it at the rate of whichever group holds most of the value, and apportions when none does.', 'wctc' ); ?>"></span></th><th><?php esc_html_e( 'Remove', 'wctc' ); ?></th></tr></thead>
+				<thead><tr><th><?php esc_html_e( 'Country', 'wctc' ); ?></th><th><?php esc_html_e( 'State', 'wctc' ); ?></th><th><?php esc_html_e( 'Postcode / ZIP', 'wctc' ); ?></th><th><?php esc_html_e( 'Shipping is taxed', 'wctc' ); ?></th><th><?php esc_html_e( 'Mixed basket', 'wctc' ); ?> <span class="woocommerce-help-tip" data-tip="<?php esc_attr_e( 'When the box holds goods taxed at different rates. Split by value (most places) or by weight (Minnesota) apportions the charge. Belgium lets you tax the whole charge at the lowest rate in the box. Illinois taxes it at the rate of whichever group holds most of the value, and apportions when none does.', 'wctc' ); ?>"></span></th><th><?php esc_html_e( 'Remove', 'wctc' ); ?></th></tr></thead>
 				<tbody>
 				<?php foreach ( array_merge( $shipping, array( null ) ) as $i => $rule ) : ?>
 					<?php $rule = $rule ?? array( 'country' => '', 'state' => '*', 'postcode' => '*', 'mode' => Engine::MODE_FOLLOWS, 'conditions_met' => 0, 'split' => 'value' ); ?>
+					<?php $met = ! empty( $rule['conditions_met'] ); ?>
 					<tr>
 						<td><?php echo self::country_select( "wctc_ship[$i][country]", $rule['country'] ); // phpcs:ignore ?></td>
 						<td><?php echo self::state_input( "wctc_ship[$i][state]", $rule['state'] ); // phpcs:ignore ?></td>
 						<td><input type="text" class="small" name="wctc_ship[<?php echo (int) $i; ?>][postcode]" value="<?php echo esc_attr( $rule['postcode'] ?? '*' ); ?>" placeholder="*"></td>
-						<td><?php echo self::select( "wctc_ship[$i][mode]", Engine::modes(), $rule['mode'] ); // phpcs:ignore ?></td>
-						<td><input type="checkbox" name="wctc_ship[<?php echo (int) $i; ?>][conditions_met]" value="1" <?php checked( ! empty( $rule['conditions_met'] ) ); ?>></td>
+						<td class="wctc-ship-mode">
+							<?php echo self::select( "wctc_ship[$i][mode]", Engine::modes(), $rule['mode'] ); // phpcs:ignore ?>
+							<?php // Conditional modes get an inline follow-up. The question text matches the mode; both answers save to the same conditions_met flag. ?>
+							<div class="wctc-cond" data-for="<?php echo esc_attr( Engine::MODE_CONDITIONAL ); ?>"<?php echo Engine::MODE_CONDITIONAL === $rule['mode'] ? '' : ' style="display:none"'; ?>>
+								<p class="wctc-cond-q"><?php esc_html_e( 'Does your store meet the state\'s exemption test?', 'wctc' ); ?></p>
+								<label><input type="radio" name="wctc_ship[<?php echo (int) $i; ?>][conditions_met]" value="1"<?php echo ( Engine::MODE_CONDITIONAL === $rule['mode'] && $met ) ? ' checked' : ''; ?>> <?php esc_html_e( 'Yes — I ship via common carrier or USPS and charge no more than actual cost (shipping is exempt)', 'wctc' ); ?></label>
+								<label><input type="radio" name="wctc_ship[<?php echo (int) $i; ?>][conditions_met]" value="0"<?php echo ( Engine::MODE_CONDITIONAL === $rule['mode'] && ! $met ) ? ' checked' : ''; ?>> <?php esc_html_e( 'No — I use my own vehicle or add a markup (shipping follows the goods)', 'wctc' ); ?></label>
+							</div>
+							<div class="wctc-cond" data-for="<?php echo esc_attr( Engine::MODE_DELIVERY_TERMS ); ?>"<?php echo Engine::MODE_DELIVERY_TERMS === $rule['mode'] ? '' : ' style="display:none"'; ?>>
+								<p class="wctc-cond-q"><?php esc_html_e( 'Can the customer separate shipping from the sale?', 'wctc' ); ?></p>
+								<label><input type="radio" name="wctc_ship[<?php echo (int) $i; ?>][conditions_met]" value="1"<?php echo ( Engine::MODE_DELIVERY_TERMS === $rule['mode'] && $met ) ? ' checked' : ''; ?>> <?php esc_html_e( 'Yes — customer could pick up or arrange their own carrier (shipping is exempt)', 'wctc' ); ?></label>
+								<label><input type="radio" name="wctc_ship[<?php echo (int) $i; ?>][conditions_met]" value="0"<?php echo ( Engine::MODE_DELIVERY_TERMS === $rule['mode'] && ! $met ) ? ' checked' : ''; ?>> <?php esc_html_e( 'No — delivery is mandatory (shipping follows the goods)', 'wctc' ); ?></label>
+							</div>
+							<?php // Carry the current value for modes that don't ask, so saving a non-conditional row doesn't lose it. ?>
+							<?php if ( ! in_array( $rule['mode'], array( Engine::MODE_CONDITIONAL, Engine::MODE_DELIVERY_TERMS ), true ) ) : ?>
+								<input type="hidden" class="wctc-cond-fallback" name="wctc_ship[<?php echo (int) $i; ?>][conditions_met]" value="<?php echo $met ? '1' : '0'; ?>">
+							<?php endif; ?>
+						</td>
 						<td><?php echo self::select( "wctc_ship[$i][split]", Engine::splits(), $rule['split'] ); // phpcs:ignore ?></td>
 						<td><?php if ( $i < count( $shipping ) ) : ?><input type="checkbox" name="wctc_ship[<?php echo (int) $i; ?>][remove]" value="1"><?php else : ?><em><?php esc_html_e( 'new', 'wctc' ); ?></em><?php endif; ?></td>
 					</tr>
 				<?php endforeach; ?>
 				</tbody>
 			</table>
+			<style>
+				.wctc .wctc-ship-mode .wctc-cond { margin-top: 8px; padding: 8px 10px; background: #f6f7f7; border-left: 3px solid #7a4fc9; border-radius: 4px; font-size: 12.5px; color: #1d2327; }
+				.wctc .wctc-ship-mode .wctc-cond-q { margin: 0 0 6px; font-weight: 600; }
+				.wctc .wctc-ship-mode .wctc-cond label { display: block; margin: 4px 0; cursor: pointer; }
+				.wctc .wctc-ship-mode .wctc-cond label input { margin-right: 6px; }
+			</style>
+			<script>
+			( function ( $ ) {
+				// Progressive disclosure: when the mode changes, show the matching follow-up question and
+				// hide the others. If the merchant switches to a non-conditional mode we drop a hidden input
+				// to preserve the current conditions_met value, so saving doesn't accidentally reset it.
+				$( '#wctc-t-shipping' ).on( 'change', 'select[name$="[mode]"]', function () {
+					var $cell = $( this ).closest( 'td' );
+					var mode  = $( this ).val();
+					var conditional = mode === '<?php echo esc_js( Engine::MODE_CONDITIONAL ); ?>' || mode === '<?php echo esc_js( Engine::MODE_DELIVERY_TERMS ); ?>';
+					$cell.find( '.wctc-cond' ).each( function () {
+						$( this ).toggle( $( this ).data( 'for' ) === mode );
+					} );
+					// Clean out any stale fallback input first.
+					$cell.find( '.wctc-cond-fallback' ).remove();
+					if ( ! conditional ) {
+						var fieldName = $( this ).attr( 'name' ).replace( '[mode]', '[conditions_met]' );
+						// Preserve the previous value (keeps user data if they toggle back later).
+						var prev = $cell.find( '.wctc-cond input[type="radio"]:checked' ).val() || '0';
+						$cell.append( '<input type="hidden" class="wctc-cond-fallback" name="' + fieldName + '" value="' + prev + '">' );
+					}
+				} );
+			}( jQuery ) );
+			</script>
 			<p class="desc"><?php esc_html_e( 'Fill in the last row of a table to add an entry, tick Remove to delete one, then Save changes.', 'wctc' ); ?></p>
 		</div>
 		<?php
