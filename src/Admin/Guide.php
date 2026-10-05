@@ -9,6 +9,8 @@
 
 namespace WCTC\Admin;
 
+use WCTC\Store;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -19,6 +21,23 @@ class Guide {
 	/** Hook in. */
 	public static function init() {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue' ) );
+	}
+
+	/**
+	 * Format up to four loaded tax-category names for inline guide text. Returns an empty string when
+	 * no categories exist yet (banner steps then read without the parenthetical). Keeps the guide
+	 * copy data-driven across different example sets (US: Clothing/Groceries/Books; EU: Books/
+	 * Children's clothing/Food/Digital books).
+	 *
+	 * @param string $template sprintf template with one %s; prepended with a leading space when non-empty.
+	 * @return string
+	 */
+	private static function example_category_list( $template = ' (%s)' ) {
+		$cats = array_slice( array_column( Store::categories(), 'name' ), 0, 4 );
+		if ( ! $cats ) {
+			return '';
+		}
+		return sprintf( $template, implode( ', ', $cats ) );
 	}
 
 	/**
@@ -93,7 +112,7 @@ class Guide {
 				'title'  => 'New screen: Tax categories',
 				'intro'  => 'Everything on this page is new. It holds the three things the feature adds: tax categories, category rules and shipping rules.',
 				'steps'  => array(
-					'Create your <strong>tax categories</strong>, or click <strong>Load example data</strong> to start from Clothing, Groceries and Books.',
+					'Create your <strong>tax categories</strong>, or click <strong>Load example data</strong>' . self::example_category_list( ' to start from %s' ) . '.',
 					'Add a <strong>category rule</strong> wherever a category is taxed differently: pick the category, the place and the tax class. Check <strong>Rate there</strong> to confirm the class has rates in that place.',
 					'Add a <strong>shipping rule</strong> only for places that exempt shipping, always tax it, or treat a mixed basket differently (by weight, at the lowest rate, or at the majority\'s rate). Everywhere else, shipping follows the goods.',
 					'Assign the categories to product categories under <strong>Products → Categories</strong>, then try a checkout.',
@@ -110,7 +129,7 @@ class Guide {
 						'label'   => '#wctc-h-categories',
 						'outline' => '#wctc-t-categories',
 						'title'   => 'Tax categories',
-						'tip'     => 'What a product is for tax purposes (Clothing, Groceries, Books). A category never holds a rate. The provider code is optional and lets a tax service such as Stripe Tax use the same category.',
+						'tip'     => 'What a product is for tax purposes' . self::example_category_list( ' (for example %s)' ) . '. A category never holds a rate. The provider code is optional and lets a tax service such as Stripe Tax use the same category.',
 					),
 					array(
 						'label'   => '#wctc-h-rules',
@@ -130,7 +149,7 @@ class Guide {
 				'title'  => 'New on this screen: Tax category',
 				'intro'  => 'Product categories can now carry a tax category. It\'s the fastest way to categorize products, because every product in the category, and in its child categories, inherits it.',
 				'steps'  => array(
-					'Edit a product category and pick its <strong>Tax category</strong> (for example Clothing).',
+					'Edit a product category and pick its <strong>Tax category</strong>' . self::example_category_list( ' (for example %s)' ) . '.',
 					'Child categories inherit it automatically; the column shows "(inherited)".',
 					'If a product sits in two categories with different tax categories, it shows as a conflict in the products list. Set the tax category on that product to settle it.',
 				),
@@ -153,7 +172,7 @@ class Guide {
 				'title'  => 'New on this screen: Tax category column',
 				'intro'  => 'See each product\'s tax category and where it comes from, without opening the product.',
 				'steps'  => array(
-					'Scan the <strong>Tax category</strong> column. "From Clothing" means it\'s inherited from a product category.',
+					'Scan the <strong>Tax category</strong> column. "From &lt;name&gt;" means it\'s inherited from a product category.',
 					'"Own tax class" means no tax category applies; the product is taxed exactly as before.',
 					'Fix any <strong>Conflict</strong> by opening the product and picking a tax category.',
 				),

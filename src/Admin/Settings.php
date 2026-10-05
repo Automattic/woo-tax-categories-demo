@@ -171,7 +171,7 @@ class Settings {
 			</div>
 			<p id="wctc-examples">
 				<a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=wctc_examples&do=load' ), 'wctc_examples' ) ); ?>"><?php esc_html_e( 'Load example data', 'wctc' ); ?></a>
-				<a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=wctc_examples&do=rates' ), 'wctc_examples' ) ); ?>"><?php esc_html_e( 'Add example tax rates (NY, AZ, CA, HI, MN, IL, MA, RI, GB, BE)', 'wctc' ); ?></a>
+				<a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=wctc_examples&do=rates' ), 'wctc_examples' ) ); ?>" title="<?php esc_attr_e( 'Writes rows for the places the loaded example rules cover (US states or EU/UK/AU, depending on which set you loaded) into the Standard and Reduced rate tables. Named "WCTC example …" so Remove finds them.', 'wctc' ); ?>"><?php esc_html_e( 'Add example tax rates', 'wctc' ); ?></a>
 				<a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=wctc_examples&do=clear' ), 'wctc_examples' ) ); ?>"><?php esc_html_e( 'Remove example data and rates', 'wctc' ); ?></a>
 				<a class="button" href="<?php echo esc_url( TaxFreeReport::url() ); ?>"><?php esc_html_e( 'View tax-free sales report →', 'wctc' ); ?></a>
 			</p>

@@ -93,6 +93,91 @@ class Examples {
 		}
 	}
 
+	/**
+	 * EU/UK/AU example set. Four categories, no price limits, country-level rules with gaps
+	 * (so Children's clothing is Standard in DE, Zero in IE, carrying different rates with no
+	 * product change). One shipping rule for BE (lowest-rate shortcut); everywhere else uses the
+	 * default "shipping follows the goods" with no row — the point of the demo.
+	 */
+	public static function load_eu() {
+		$categories = Store::categories() + array(
+			'books'               => array( 'name' => 'Books', 'provider_code' => 'txcd_35010000' ),
+			'childrens-clothing'  => array( 'name' => "Children's clothing", 'provider_code' => 'txcd_30011001' ),
+			'food'                => array( 'name' => 'Food', 'provider_code' => 'txcd_40060003' ),
+			'digital-books'       => array( 'name' => 'Digital books', 'provider_code' => 'txcd_10302000' ),
+		);
+		Store::save_categories( $categories );
+
+		$rules = array();
+		// A wildcard digital-books rule plus two overrides (IE and GB zero-rate it) — demonstrates
+		// "most specific wins" and keeps the table seven rows shorter than listing each country.
+		$rules[] = self::rule( 'digital-books', '*', '*', 'reduced-rate' );
+		$rules[] = self::rule( 'digital-books', 'IE', '*', 'reduced-rate' ); // IE applies its reduced 9%, not zero.
+		$rules[] = self::rule( 'digital-books', 'GB', '*', 'zero-rate' );
+		foreach ( array( 'DE', 'FR', 'IT', 'BE', 'NL' ) as $c ) {
+			$rules[] = self::rule( 'books', $c, '*', 'reduced-rate' );
+			$rules[] = self::rule( 'food', $c, '*', 'reduced-rate' );
+		}
+		$rules[] = self::rule( 'books', 'IE', '*', 'zero-rate' );
+		$rules[] = self::rule( 'books', 'GB', '*', 'zero-rate' );
+		$rules[] = self::rule( 'childrens-clothing', 'IE', '*', 'zero-rate' );
+		$rules[] = self::rule( 'childrens-clothing', 'GB', '*', 'zero-rate' );
+		$rules[] = self::rule( 'food', 'IE', '*', 'zero-rate' );
+		$rules[] = self::rule( 'food', 'GB', '*', 'zero-rate' );
+		$rules[] = self::rule( 'food', 'AU', '*', 'zero-rate' );
+		Store::save_rules( $rules );
+
+		Store::save_shipping_rules(
+			array(
+				array( 'country' => 'BE', 'state' => '*', 'postcode' => '*', 'mode' => Engine::MODE_FOLLOWS, 'conditions_met' => 0, 'split' => Engine::SPLIT_LOWEST ),
+			)
+		);
+	}
+
+	/** Build one rule row with sensible defaults for an EU-style country-wide rule. */
+	private static function rule( $category, $country, $state, $class ) {
+		return array( 'category' => $category, 'country' => $country, 'state' => $state, 'postcode' => '*', 'max_price' => '', 'limit_mode' => Engine::LIMIT_CLIFF, 'tax_class' => $class, 'start' => '', 'end' => '' );
+	}
+
+	/**
+	 * EU rate rows (Standard + Reduced for DE, FR, IT, IE, BE, NL; GB VAT only; AU GST only).
+	 * Zero rate class has no rows, as in stock WooCommerce. Illustrative, not advice.
+	 */
+	public static function add_rates_eu() {
+		self::remove_rates();
+		$rows = array(
+			array( 'DE', '', '', '19.0000', 'DE VAT' ),
+			array( 'DE', 'reduced-rate', '', '7.0000', 'DE VAT reduced' ),
+			array( 'FR', '', '', '20.0000', 'FR TVA' ),
+			array( 'FR', 'reduced-rate', '', '5.5000', 'FR TVA reduced' ),
+			array( 'IT', '', '', '22.0000', 'IT IVA' ),
+			array( 'IT', 'reduced-rate', '', '4.0000', 'IT IVA reduced' ),
+			array( 'IE', '', '', '23.0000', 'IE VAT' ),
+			array( 'IE', 'reduced-rate', '', '9.0000', 'IE VAT reduced' ),
+			array( 'BE', '', '', '21.0000', 'BE VAT' ),
+			array( 'BE', 'reduced-rate', '', '6.0000', 'BE VAT reduced' ),
+			array( 'NL', '', '', '21.0000', 'NL VAT' ),
+			array( 'NL', 'reduced-rate', '', '9.0000', 'NL VAT reduced' ),
+			array( 'GB', '', '', '20.0000', 'GB VAT' ),
+			array( 'AU', '', '', '10.0000', 'AU GST' ),
+		);
+		foreach ( $rows as $row ) {
+			\WC_Tax::_insert_tax_rate(
+				array(
+					'tax_rate_country'  => $row[0],
+					'tax_rate_state'    => '',
+					'tax_rate'          => $row[3],
+					'tax_rate_name'     => Store::EXAMPLE_PREFIX . ' ' . $row[4],
+					'tax_rate_priority' => 1,
+					'tax_rate_compound' => 0,
+					'tax_rate_shipping' => 1,
+					'tax_rate_order'    => 0,
+					'tax_rate_class'    => $row[1],
+				)
+			);
+		}
+	}
+
 	/** Remove example rate rows only. */
 	private static function remove_rates() {
 		global $wpdb;

@@ -13,6 +13,7 @@ h1{font-size:28px;line-height:1.2;margin:0;text-wrap:balance}
 .lede{color:var(--muted);margin:6px 0 0}
 .launch{display:inline-flex;align-items:center;gap:10px;background:var(--accent);color:var(--accent-fg);text-decoration:none;font-weight:600;padding:14px 22px;border-radius:8px;font-size:17px}
 .launch:focus-visible{outline:3px solid var(--fg);outline-offset:3px}
+.launch-secondary{display:inline-flex;align-items:center;gap:8px;color:var(--accent);text-decoration:none;font-weight:600;padding:10px 0;font-size:15px}
 .meta{font:13px var(--mono);color:var(--muted);margin-top:10px}
 section{border-top:1px solid var(--line);padding-top:20px}
 h2{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 12px;font-weight:600}
@@ -30,32 +31,35 @@ p{margin:0}
 <p class="lede">A throwaway WordPress test store with WooCommerce and the tax categories prototype, ready to try in your browser. Nothing is saved anywhere; close the tab and it's gone.</p>
 </header>
 <div>
-<a id="launch" class="launch" href="https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fbright-willow.view.fast%2Fblueprint.json" target="_blank" rel="noopener">Open the test store</a>
-<p class="meta">Prototype version 03e4196-excess-tf · boots in about 30 seconds · blueprint from <code>bright-willow.view.fast</code></p>
-<p style="margin-top:14px"><a href="https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fbright-willow.view.fast%2Fblueprint.json&amp;url=%2Fwctc-acceptance.php" target="_blank" rel="noopener">Boot straight to the NYC acceptance example →</a></p>
-<p class="meta">Pre-fills a cart with the $45 hoodie and the $20 book, pins the shipping address to New York 10001, picks the $10 flat rate, and lands on checkout. Expected: hoodie exempt (NY Clothing &lt; $110 rule), book $1.78, shipping $0.27, <strong>total tax $2.05</strong> — versus $0.89 shipping tax on a one-class store.</p>
+<a id="launch" class="launch" href="https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fbright-willow.view.fast%2Fblueprint-eu.json" target="_blank" rel="noopener">Open the EU / UK / AU store</a>
+<p class="meta">Berlin base, EUR, selling to DE·FR·IT·IE·BE·NL·GB·AU · boots in about 30 seconds · blueprint from <code>bright-willow.view.fast</code></p>
+<p style="margin-top:14px"><a class="launch-secondary" href="https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fbright-willow.view.fast%2Fblueprint.json" target="_blank" rel="noopener">Open the US store (state exceptions, excess-only limits) →</a></p>
+<p class="meta">New York base, USD, selling to US·UK. Keeps the 111-case suite and the state-level exceptions (NY cliff, MA/RI excess, CA/HI/AZ/MN/IL shipping rules).</p>
+<p style="margin-top:14px"><a class="launch-secondary" href="https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fbright-willow.view.fast%2Fblueprint.json&amp;url=%2Fwctc-acceptance.php" target="_blank" rel="noopener">US acceptance example: cart pre-filled, lands on NYC checkout →</a></p>
+<p class="meta">Hoodie exempt, book $1.78, shipping $0.27, <strong>total tax $2.05</strong> — vs $0.89 shipping tax on a one-class store.</p>
 </div>
+
 <section>
-<h2>What's set up</h2>
+<h2>EU / UK / AU store — what's set up</h2>
 <ul>
-<li>A New York store in USD, taxes on, taxed by the customer's shipping address</li>
-<li>Products: Hoodie $45, Winter coat $150, Jacket $60, a $20 book, Mug $10, Blender $40, plus a $200 Designer coat (MA excess test) and a $300 Luxury coat (RI excess test)</li>
-<li>Product categories Clothing and Books mapped to tax categories</li>
-<li>Example rules: NY clothing under $110 at Zero rate (cliff), MA clothing with the first $175 per item exempt (excess), RI clothing with the first $250 exempt (excess), books zero-rated in the UK, shipping rules for NY, AZ, CA, HI, MN, IL, BE and the UK</li>
-<li>Example tax rates for those places, and a $10 flat rate to the US and UK</li>
-<li>Every new field is outlined with a <strong>New</strong> badge; hover it for what it does, or use <strong>Take the tour</strong> on each changed screen</li>
+<li>Berlin store in EUR, taxes on, taxed by shipping address (OSS: destination rates), one zone with a €4.90 flat rate</li>
+<li>Products: Paperback €20 (Books), Children's jumper €30 (Kids), Coffee beans €12 (Pantry), E-book €10 (virtual, Digital books), Mug €10 (own class), Rain jacket €60 (own class)</li>
+<li>Four categories (Books, Children's clothing, Food, Digital books) with country-level rules that leave gaps on purpose — the jumper is Standard in Germany and Zero in Ireland without touching the product</li>
+<li>One shipping rule: Belgium uses "whole charge at the lowest rate in the box". Everywhere else — including Australia — has no rule, which is the main claim: turn it on and shipping is right with no configuration</li>
+<li>Rates for DE, FR, IT, IE, BE, NL (Standard + Reduced), GB (VAT only), AU (GST only). Illustrative, not advice</li>
 </ul>
 </section>
 <section>
 <h2>Where to look</h2>
 <div class="wrap"><table>
-<tr><td><code>/wctc-test.php</code></td><td>Acceptance checks (25), run against real carts and an order</td></tr>
-<tr><td><code>/wctc-stress.php</code></td><td>Edge cases (16): coupons, per-item shipping, pickup, billing address, admin orders</td></tr>
-<tr><td><code>/wctc-suite.php</code></td><td>Full validation suite (80+ cases across opt-out parity, resolution, rules, shipping, order editing, Store API, Analytics, merchant setup mistakes, excess-only limits and the tax-free report). Append <code>?format=json</code> for machine-readable output.</td></tr>
-<tr><td>WooCommerce → Settings → Tax → Tax categories</td><td>Categories, rules and shipping rules (the store opens here)</td></tr>
+<tr><td><code>/wctc-eu-check.php</code></td><td>Eight carts verified end-to-end (Berlin, Dublin, Paris, Brussels, London, Amsterdam, Sydney + an opt-out parity check)</td></tr>
+<tr><td><code>/wctc-test.php</code></td><td><em>US store:</em> 25 acceptance checks</td></tr>
+<tr><td><code>/wctc-stress.php</code></td><td><em>US store:</em> 16 edge cases</td></tr>
+<tr><td><code>/wctc-suite.php</code></td><td><em>US store:</em> full 80+ case suite including opt-out parity, excess-only limits, tax-free report. Append <code>?format=json</code> for machine-readable output.</td></tr>
+<tr><td>WooCommerce → Settings → Tax → Tax categories</td><td>Categories, rules and shipping rules (both blueprints open here)</td></tr>
 <tr><td>WooCommerce → Tax-free sales</td><td>Date-ranged report of sales that paid no tax because of a rule, bucketed by tax category</td></tr>
-<tr><td>Products → Categories</td><td>Tax category on each product category</td></tr>
-<tr><td>Shop → checkout</td><td>NYC order: hoodie + book shows $0.27 shipping tax. Ship a $200 or $300 Clothing coat to MA or RI to see excess-only tax on just the amount above the limit.</td></tr>
+<tr><td>Products → Categories</td><td>Tax category on each product category (shows the inheritance: Clothing → Kids → Children's clothing on the EU store)</td></tr>
+<tr><td>Shop → checkout</td><td>EU: paperback + mug to Berlin shows €0.54 shipping VAT instead of €0.93. US: hoodie + book to NYC shows $0.27 shipping tax instead of $0.89.</td></tr>
 </table></div>
 <p class="lede">Type a path into the address bar at the bottom of the Playground window.</p>
 </section>
