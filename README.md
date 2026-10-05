@@ -82,7 +82,7 @@ Every field the prototype adds is marked the way the scope doc's mockups are: a 
 
 ## Prototype limits
 
-- Carrier conditions (California, South Carolina) are answered per place, not per shipping method.
+- Carrier conditions (California, South Carolina) are answered per place, not per shipping method. California exempts shipping only when the store uses a common carrier (or USPS), charges no more than actual cost, and lists shipping on its own line; South Carolina has a similar test. A merchant whose shipping varies by method (USPS Priority for most, hand-delivered local pickup) can only answer yes or no for the whole state. The right home for this answer in a core version is probably the shipping method instance with the place rule as a default; estimated at about half a day. Mitigation here: leave the CA/SC rule off and let shipping follow the goods — over-taxes some orders, never under-taxes.
 - Handling isn't a separate charge.
 - The Tax-free sales report is a sibling admin page under WooCommerce, not an integration into Analytics → Taxes (that would need a React Admin slot and a build step). The data it shows is what a core proposal would surface on the Analytics summary and in a per-category table under the existing rate table.
 
