@@ -36,18 +36,22 @@ Use a test store: the "Add example tax rates" button writes rows to the Standard
 
 `playground/blueprint.json` boots a throwaway WordPress in the browser with WooCommerce, this plugin, a US/UK test store (products, a $10 flat rate, example rules and rates) and the feature switched on. It lands on **Settings → Tax → Tax categories**.
 
-- If the repo is public: open `https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/george-vice/woo-core-tax-categories/main/playground/blueprint.json`.
-- While it's private: open `https://github.com/george-vice/woo-core-tax-categories/raw/main/playground/blueprint.json` while signed in to GitHub. Copy the `raw.githubusercontent.com…?token=…` address it redirects to, URL-encode it, and pass it as `blueprint-url` above. The token lasts a few minutes, which is enough to boot.
+The blueprint is hosted on Spacefast with CORS enabled, so one URL boots it:
+
+- One click: [playground.wordpress.net/?blueprint-url=…bright-willow.view.fast/blueprint.json](https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fbright-willow.view.fast%2Fblueprint.json)
+- Boot straight to the NYC acceptance example (cart pre-filled, shipping address pinned to New York 10001, lands on checkout showing $2.05 total tax): [playground.wordpress.net/?blueprint-url=…&url=/wctc-acceptance.php](https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fbright-willow.view.fast%2Fblueprint.json&url=%2Fwctc-acceptance.php)
+- `playground/launcher.html` in this repo is a 5 KB page that redirects to the same URL and lists what's set up.
 
 Once it's running, open these in the Playground address bar. Each builds real carts and orders and checks the numbers:
 
+- **/wctc-acceptance.php**: pre-fills the cart with the $45 hoodie + $20 book and ships to NYC — demonstrates the acceptance example in one hop.
 - **/wctc-test.php**: 25 acceptance checks (feature off = stock WooCommerce, NYC, the $110 limit, UK, Arizona, Hawaii, California, Minnesota by weight, an order that keeps the shipping split after Recalculate).
 - **/wctc-stress.php**: 16 edge cases (discounts, per-item shipping formulas, variations, conflicts, admin-created orders).
-- **/wctc-suite.php**: 70 cases across opt-out parity, category resolution, rule matching, shipping, order editing, the Store API, Analytics and merchant setup mistakes. Add `?format=json` for machine-readable output. Run the stress page first; the suite reuses its products.
+- **/wctc-suite.php**: 70+ cases across opt-out parity, category resolution, rule matching, shipping (including Belgium lowest-rate and Illinois majority-of-value), order editing, the Store API, Analytics, merchant setup mistakes, excess-only limits (MA $175, RI $250) and the tax-free sales report. Add `?format=json` for machine-readable output. Run the stress page first; the suite reuses its products.
 
 Playground runs WordPress on SQLite, which lacks `SUBSTRING_INDEX()`; stock WooCommerce's Analytics → Taxes per-rate table is empty there with or without this plugin. The blueprint installs a small mu-plugin (`playground/sqlite-shim.php`) that adds the function so the report can be reviewed. It's a test-store aid, not part of the proposal.
 
-After editing plugin files, rebuild the blueprint with `python3 tools/build-blueprint.py`.
+After editing plugin files, rebuild the blueprint with `python3 tools/build-blueprint.py` and republish it to the hosted URL (`.spacefast/space.json` keeps the Space id so the same URL stays current).
 
 `tools/checkout.spec.js` is a Playwright run through the **block checkout** (not the API) for four reference carts, reading the totals off the page. Point it at a booted store with `WCTC_BASE=https://playground.wordpress.net/scope:…` or let it boot one from the blueprint.
 
