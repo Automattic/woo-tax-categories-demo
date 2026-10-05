@@ -13,15 +13,18 @@ shared across stores; only the setup script and (for EU) one extra check page di
 import argparse, json, pathlib, urllib.parse
 
 STORES = {
-    "us": {
-        "setup": "playground/setup.php",
-        "output": "playground/blueprint.json",
-        "extra_files": [],  # all shared test pages are already included below
-    },
+    # "eu" is the primary store the README advertises, so its output is just blueprint.json.
+    # The US-centric store (state exceptions + 111-case suite) ships as blueprint-us.json for
+    # developers; the README doesn't mention it, but Spacefast still serves it.
     "eu": {
         "setup": "playground/setup-eu.php",
-        "output": "playground/blueprint-eu.json",
+        "output": "playground/blueprint.json",
         "extra_files": [("playground/wctc-eu-check.php", "/wordpress/wctc-eu-check.php")],
+    },
+    "us": {
+        "setup": "playground/setup.php",
+        "output": "playground/blueprint-us.json",
+        "extra_files": [],  # all shared test pages are already included below
     },
 }
 
@@ -75,10 +78,10 @@ def build(root: pathlib.Path, store: str) -> pathlib.Path:
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--store", choices=["us", "eu", "all"], default="us", help="Which store to build (default: us)")
+    ap.add_argument("--store", choices=["eu", "us", "all"], default="eu", help="Which store to build (default: eu — the primary blueprint.json)")
     args = ap.parse_args()
     root = pathlib.Path(__file__).resolve().parent.parent
-    for store in (["us", "eu"] if args.store == "all" else [args.store]):
+    for store in (["eu", "us"] if args.store == "all" else [args.store]):
         build(root, store)
 
 

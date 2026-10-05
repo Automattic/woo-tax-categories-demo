@@ -31,35 +31,28 @@ p{margin:0}
 <p class="lede">A throwaway WordPress test store with WooCommerce and the tax categories prototype, ready to try in your browser. Nothing is saved anywhere; close the tab and it's gone.</p>
 </header>
 <div>
-<a id="launch" class="launch" href="https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fbright-willow.view.fast%2Fblueprint-eu.json" target="_blank" rel="noopener">Open the EU / UK / AU store</a>
-<p class="meta">Berlin base, EUR, selling to DE·FR·IT·IE·BE·NL·GB·AU · boots in about 30 seconds · blueprint from <code>bright-willow.view.fast</code></p>
-<p style="margin-top:14px"><a class="launch-secondary" href="https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fbright-willow.view.fast%2Fblueprint.json" target="_blank" rel="noopener">Open the US store (state exceptions, excess-only limits) →</a></p>
-<p class="meta">New York base, USD, selling to US·UK. Keeps the 111-case suite and the state-level exceptions (NY cliff, MA/RI excess, CA/HI/AZ/MN/IL shipping rules).</p>
-<p style="margin-top:14px"><a class="launch-secondary" href="https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fbright-willow.view.fast%2Fblueprint.json&amp;url=%2Fwctc-acceptance.php" target="_blank" rel="noopener">US acceptance example: cart pre-filled, lands on NYC checkout →</a></p>
-<p class="meta">Hoodie exempt, book $1.78, shipping $0.27, <strong>total tax $2.05</strong> — vs $0.89 shipping tax on a one-class store.</p>
+<a id="launch" class="launch" href="https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fbright-willow.view.fast%2Fblueprint.json" target="_blank" rel="noopener">Open the test store</a>
+<p class="meta">Boots in about 30 seconds · blueprint from <code>bright-willow.view.fast</code></p>
 </div>
 
 <section>
-<h2>EU / UK / AU store — what's set up</h2>
+<h2>What's set up</h2>
 <ul>
-<li>Berlin store in EUR, taxes on, taxed by shipping address (OSS: destination rates), one zone with a €4.90 flat rate</li>
-<li>Products: Paperback €20 (Books), Children's jumper €30 (Kids), Coffee beans €12 (Pantry), E-book €10 (virtual, Digital books), Mug €10 (own class), Rain jacket €60 (own class)</li>
-<li>Four categories (Books, Children's clothing, Food, Digital books) with country-level rules that leave gaps on purpose — the jumper is Standard in Germany and Zero in Ireland without touching the product</li>
-<li>One shipping rule: Belgium uses "whole charge at the lowest rate in the box". Everywhere else — including Australia — has no rule, which is the main claim: turn it on and shipping is right with no configuration</li>
-<li>Rates for DE, FR, IT, IE, BE, NL (Standard + Reduced), GB (VAT only), AU (GST only). Illustrative, not advice</li>
+<li>A store with WooCommerce active, this plugin on, taxes calculated by the customer's shipping address</li>
+<li>A handful of products across different categories (books, clothing, food, a digital download, a kitchen item) at a mix of price points, so the category rules have something to resolve</li>
+<li>Tax categories and country-level rules that leave gaps on purpose: a children's item is Standard in one country and Zero in another with no change to the product; a paperback is reduced-rated in some, zero-rated in others</li>
+<li>One shipping rule for a jurisdiction that treats a mixed basket differently; everywhere else has no rule, which is the main claim — turn it on and shipping is right with no configuration</li>
+<li>Illustrative tax rate rows for every country the store sells to. Not advice</li>
 </ul>
 </section>
 <section>
 <h2>Where to look</h2>
 <div class="wrap"><table>
-<tr><td><code>/wctc-eu-check.php</code></td><td>Eight carts verified end-to-end (Berlin, Dublin, Paris, Brussels, London, Amsterdam, Sydney + an opt-out parity check)</td></tr>
-<tr><td><code>/wctc-test.php</code></td><td><em>US store:</em> 25 acceptance checks</td></tr>
-<tr><td><code>/wctc-stress.php</code></td><td><em>US store:</em> 16 edge cases</td></tr>
-<tr><td><code>/wctc-suite.php</code></td><td><em>US store:</em> full 80+ case suite including opt-out parity, excess-only limits, tax-free report. Append <code>?format=json</code> for machine-readable output.</td></tr>
-<tr><td>WooCommerce → Settings → Tax → Tax categories</td><td>Categories, rules and shipping rules (both blueprints open here)</td></tr>
+<tr><td><code>/wctc-eu-check.php</code></td><td>Eight real carts calculated end-to-end against expected numbers (destinations across the EU, UK and Australia, plus an opt-out parity check)</td></tr>
+<tr><td>WooCommerce → Settings → Tax → Tax categories</td><td>Categories, rules and shipping rules (the store opens here)</td></tr>
 <tr><td>WooCommerce → Tax-free sales</td><td>Date-ranged report of sales that paid no tax because of a rule, bucketed by tax category</td></tr>
-<tr><td>Products → Categories</td><td>Tax category on each product category (shows the inheritance: Clothing → Kids → Children's clothing on the EU store)</td></tr>
-<tr><td>Shop → checkout</td><td>EU: paperback + mug to Berlin shows €0.54 shipping VAT instead of €0.93. US: hoodie + book to NYC shows $0.27 shipping tax instead of $0.89.</td></tr>
+<tr><td>Products → Categories</td><td>Tax category on each product category (shows the inheritance)</td></tr>
+<tr><td>Shop → checkout</td><td>Add two items to a cart and see shipping tax split across their classes, instead of the single-class behaviour stock WooCommerce falls back to</td></tr>
 </table></div>
 <p class="lede">Type a path into the address bar at the bottom of the Playground window.</p>
 </section>

@@ -1,6 +1,6 @@
 # Tax Categories for WooCommerce: core prototype
 
-**[→ Try it in WordPress Playground (EU store)](https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fbright-willow.view.fast%2Fblueprint-eu.json)** &nbsp;·&nbsp; [US store (state exceptions)](https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fbright-willow.view.fast%2Fblueprint.json) &nbsp;·&nbsp; [US acceptance example (cart pre-filled)](https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fbright-willow.view.fast%2Fblueprint.json&url=%2Fwctc-acceptance.php)
+**[→ Try it in WordPress Playground](https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fbright-willow.view.fast%2Fblueprint.json)**
 
 A working prototype of the proposal in **Tax Categories for WooCommerce: Requirements Scope**, so you can try it on a real store. The proposal is a core feature. This is packaged as a plugin only so it's easy to install and remove on a test site.
 
@@ -36,31 +36,15 @@ Use a test store: the "Add example tax rates" button writes rows to the Standard
 
 ## Try it in WordPress Playground
 
-Two blueprints boot throwaway WordPress stores in the browser with WooCommerce, this plugin and example data — one aimed at the EU/UK/AU market (the main P2 post), one at the US (state-level exceptions, excess-only limits, the 111-case suite). Both land on **Settings → Tax → Tax categories**. Hosted on Spacefast with CORS enabled.
-
-### EU / UK / AU store (default)
-
-Berlin base, EUR, selling to DE, FR, IT, IE, BE, NL, GB and AU with a €4.90 flat rate. Four categories (Books, Children's clothing, Food, Digital books), country-level rules with gaps on purpose — a children's jumper is Standard in Germany and Zero in Ireland without touching the product. One shipping rule (BE: whole charge at the lowest rate in the box). Full brief in `docs/eu-demo-store-brief.md`.
-
-- One click: [playground.wordpress.net/?blueprint-url=…bright-willow.view.fast/blueprint-eu.json](https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fbright-willow.view.fast%2Fblueprint-eu.json)
-- **/wctc-eu-check.php**: eight cart cases (Berlin, Dublin, Paris, Brussels, London, Amsterdam, Sydney + opt-out parity) verified against the brief's expected numbers.
-
-### US store (state exceptions)
-
-New York base, USD, selling to US and GB with a $10 flat rate. Keeps the state-level examples (NY cliff under $110, MA/RI excess, CA/HI/AZ/MN/IL shipping rules) and the full validation suite.
+`playground/blueprint.json` boots a throwaway WordPress store in the browser with WooCommerce, this plugin and example data (Berlin base, EUR, selling across the EU, UK and Australia). It lands on **Settings → Tax → Tax categories**. Hosted on Spacefast with CORS enabled.
 
 - One click: [playground.wordpress.net/?blueprint-url=…bright-willow.view.fast/blueprint.json](https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fbright-willow.view.fast%2Fblueprint.json)
-- Boot straight to the NYC acceptance example (cart pre-filled, shipping address pinned to New York 10001, lands on checkout showing $2.05 total tax): [playground.wordpress.net/?blueprint-url=…&url=/wctc-acceptance.php](https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fbright-willow.view.fast%2Fblueprint.json&url=%2Fwctc-acceptance.php)
-- **/wctc-acceptance.php**: pre-fills the cart with the $45 hoodie + $20 book and ships to NYC in one hop.
-- **/wctc-test.php**: 25 acceptance checks.
-- **/wctc-stress.php**: 16 edge cases.
-- **/wctc-suite.php**: 80+ cases including opt-out parity, excess-only limits (MA $175, RI $250), tax-free report. Add `?format=json` for machine-readable output. Run the stress page first; the suite reuses its products.
-
-`playground/launcher.html` in this repo is a 5 KB page with buttons for both.
+- `playground/launcher.html` in this repo is a 5 KB page that redirects to the same URL and lists what's set up.
+- **/wctc-eu-check.php** inside the booted store runs eight cart cases (Berlin, Dublin, Paris, Brussels, London, Amsterdam, Sydney + opt-out parity) and reports pass/fail against the expected numbers.
 
 Playground runs WordPress on SQLite, which lacks `SUBSTRING_INDEX()`; stock WooCommerce's Analytics → Taxes per-rate table is empty there with or without this plugin. The blueprint installs a small mu-plugin (`playground/sqlite-shim.php`) that adds the function so the report can be reviewed. It's a test-store aid, not part of the proposal.
 
-After editing plugin files, rebuild both blueprints with `python3 tools/build-blueprint.py --store all` and republish them to the hosted URL (`.spacefast/space.json` keeps the Space id so the same URLs stay current).
+After editing plugin files, rebuild the blueprint with `python3 tools/build-blueprint.py` and republish it to the hosted URL (`.spacefast/space.json` keeps the Space id so the same URL stays current).
 
 `tools/checkout.spec.js` is a Playwright run through the **block checkout** (not the API) for four reference carts, reading the totals off the page. Point it at a booted store with `WCTC_BASE=https://playground.wordpress.net/scope:…` or let it boot one from the blueprint.
 

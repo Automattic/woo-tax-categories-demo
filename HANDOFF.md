@@ -15,7 +15,7 @@ Working preferences George has stated: state what information is needed and flag
 | Plugin source | `src/` (see `CLAUDE.md` for the layout) |
 | Pure logic tests | `php tests/EngineTest.php` (48 pass) |
 | Playground test pages | `playground/wctc-test.php` (25), `wctc-stress.php` (16), `wctc-suite.php` (70, `?format=json`) |
-| Playground blueprint | `playground/blueprint.json`, rebuilt by `python3 tools/build-blueprint.py` |
+| Playground blueprint | `playground/blueprint.json` (EU-sourced, built from `setup-eu.php`), rebuilt by `python3 tools/build-blueprint.py`. Also `playground/blueprint-us.json` (dev-only, built from `setup.php`, holds the state-exception data and runs the full 111-case suite); rebuilt via `--store us` or `--store all`. |
 | One-click launcher page | `playground/launcher.html` (same content as the claude.ai artifact "Tax categories prototype"); it embeds the blueprint in the Playground URL fragment, ~365 KB |
 | Block-checkout run | `tools/checkout.spec.js` (Playwright; needs a machine that can reach playground.wordpress.net) |
 | Requirements scope | `docs/requirements-scope.md` (exported from the Claude doc; images are placeholders there) |
@@ -50,7 +50,8 @@ Everything in the requirements doc is built and passing, plus the second-pass wo
 ## How to run it
 
 - Boot: open `playground/launcher.html` in a browser, or go straight to `https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fbright-willow.view.fast%2Fblueprint.json`. The launcher is now a 5 KB page that redirects to that Playground URL; the blueprint lives on Spacefast at `https://bright-willow.view.fast/blueprint.json` (public, `Access-Control-Allow-Origin: *` via a `_headers` file).
-- Spacefast Space: `spc_68ea168bf2234c7e85b73efdccd68850` ("Woo Tax Categories" / slug `bright-willow`), claimed by George's team. `.spacefast/space.json` keeps the id so subsequent publishes update this Space in place. To republish after a plugin change: `python3 tools/build-blueprint.py`, then post `blueprint.json` + the `_headers` file (`/*` → `Access-Control-Allow-Origin: *`, `GET, HEAD, OPTIONS`) to `/v1/publish` with the saved bearer and `spaceId`.
+- Spacefast Space: `spc_68ea168bf2234c7e85b73efdccd68850` ("Woo Tax Categories" / slug `bright-willow`), claimed by George's team. `.spacefast/space.json` keeps the id so subsequent publishes update this Space in place. To republish after a plugin change: `python3 tools/build-blueprint.py --store all`, then post `blueprint.json` + `blueprint-us.json` + `_headers` + `_redirects` to `/v1/publish` with the saved bearer and `spaceId`. `_redirects` maps the legacy `/blueprint-eu.json` to `/blueprint.json` with a 302 so old bookmarks still work.
+- US dev blueprint: `https://bright-willow.view.fast/blueprint-us.json` boots the New-York store (state exceptions, excess-only limits) and runs the 111-case suite. Not shown in the README; use it when iterating on US-only behaviour.
 - In the booted store, open `/wctc-test.php`, then `/wctc-stress.php`, then `/wctc-suite.php` (the suite reuses the stress page's products).
 - After editing plugin files: lint (`for f in $(find . -name '*.php'); do php -l "$f"; done`), `php tests/EngineTest.php`, `python3 tools/build-blueprint.py`, commit, then regenerate `playground/launcher.html` by replacing the JSON inside `<script type="application/json" id="blueprint">` and the "Prototype version <sha>" line.
 - Browser automation note: Playground renders WordPress in a nested iframe; `window.playground.run({code})` on the outer page runs PHP in the store, which is the fastest way to inspect state.
