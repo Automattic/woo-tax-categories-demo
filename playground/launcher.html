@@ -1,0 +1,62 @@
+<title>Tax Categories Playground</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one narrow column; the launch action first, then what you'll find and where. */
+:root{--bg:#f6f7f9;--fg:#1c2230;--muted:#5a6375;--line:#d9dde5;--card:#ffffff;--accent:#5b3fd1;--accent-fg:#ffffff;--code:#eef0f6;
+--sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#13161d;--fg:#e7e9ef;--muted:#9aa2b2;--line:#2b303b;--card:#1a1e27;--accent:#9d88ff;--accent-fg:#13161d;--code:#222734;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#13161d;--fg:#e7e9ef;--muted:#9aa2b2;--line:#2b303b;--card:#1a1e27;--accent:#9d88ff;--accent-fg:#13161d;--code:#222734;color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font:16px/1.55 var(--sans);padding:40px 16px}
+main{max-width:640px;margin:0 auto;display:grid;gap:28px}
+h1{font-size:28px;line-height:1.2;margin:0;text-wrap:balance}
+.lede{color:var(--muted);margin:6px 0 0}
+.launch{display:inline-flex;align-items:center;gap:10px;background:var(--accent);color:var(--accent-fg);text-decoration:none;font-weight:600;padding:14px 22px;border-radius:8px;font-size:17px}
+.launch:focus-visible{outline:3px solid var(--fg);outline-offset:3px}
+.meta{font:13px var(--mono);color:var(--muted);margin-top:10px}
+section{border-top:1px solid var(--line);padding-top:20px}
+h2{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 12px;font-weight:600}
+ul{margin:0;padding-left:20px;display:grid;gap:6px}
+code{font:14px var(--mono);background:var(--code);padding:1px 6px;border-radius:4px}
+table{border-collapse:collapse;width:100%;font-size:15px}
+td{padding:8px 0;border-bottom:1px solid var(--line);vertical-align:top}
+td:first-child{white-space:nowrap;padding-right:16px}
+.wrap{overflow-x:auto}
+p{margin:0}
+</style>
+<main>
+<header>
+<h1>Tax Categories Playground</h1>
+<p class="lede">A throwaway WordPress test store with WooCommerce and the tax categories prototype, ready to try in your browser. Nothing is saved anywhere; close the tab and it's gone.</p>
+</header>
+<div>
+<a id="launch" class="launch" href="https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fbright-willow.view.fast%2Fblueprint.json" target="_blank" rel="noopener">Open the test store</a>
+<p class="meta">Prototype version 03e4196-excess-tf · boots in about 30 seconds · blueprint from <code>bright-willow.view.fast</code></p>
+<p style="margin-top:14px"><a href="https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fbright-willow.view.fast%2Fblueprint.json&amp;url=%2Fwctc-acceptance.php" target="_blank" rel="noopener">Boot straight to the NYC acceptance example →</a></p>
+<p class="meta">Pre-fills a cart with the $45 hoodie and the $20 book, pins the shipping address to New York 10001, picks the $10 flat rate, and lands on checkout. Expected: hoodie exempt (NY Clothing &lt; $110 rule), book $1.78, shipping $0.27, <strong>total tax $2.05</strong> — versus $0.89 shipping tax on a one-class store.</p>
+</div>
+<section>
+<h2>What's set up</h2>
+<ul>
+<li>A New York store in USD, taxes on, taxed by the customer's shipping address</li>
+<li>Products: Hoodie $45, Winter coat $150, Jacket $60, a $20 book, Mug $10, Blender $40, plus a $200 Designer coat (MA excess test) and a $300 Luxury coat (RI excess test)</li>
+<li>Product categories Clothing and Books mapped to tax categories</li>
+<li>Example rules: NY clothing under $110 at Zero rate (cliff), MA clothing with the first $175 per item exempt (excess), RI clothing with the first $250 exempt (excess), books zero-rated in the UK, shipping rules for NY, AZ, CA, HI, MN, IL, BE and the UK</li>
+<li>Example tax rates for those places, and a $10 flat rate to the US and UK</li>
+<li>Every new field is outlined with a <strong>New</strong> badge; hover it for what it does, or use <strong>Take the tour</strong> on each changed screen</li>
+</ul>
+</section>
+<section>
+<h2>Where to look</h2>
+<div class="wrap"><table>
+<tr><td><code>/wctc-test.php</code></td><td>Acceptance checks (25), run against real carts and an order</td></tr>
+<tr><td><code>/wctc-stress.php</code></td><td>Edge cases (16): coupons, per-item shipping, pickup, billing address, admin orders</td></tr>
+<tr><td><code>/wctc-suite.php</code></td><td>Full validation suite (80+ cases across opt-out parity, resolution, rules, shipping, order editing, Store API, Analytics, merchant setup mistakes, excess-only limits and the tax-free report). Append <code>?format=json</code> for machine-readable output.</td></tr>
+<tr><td>WooCommerce → Settings → Tax → Tax categories</td><td>Categories, rules and shipping rules (the store opens here)</td></tr>
+<tr><td>WooCommerce → Tax-free sales</td><td>Date-ranged report of sales that paid no tax because of a rule, bucketed by tax category</td></tr>
+<tr><td>Products → Categories</td><td>Tax category on each product category</td></tr>
+<tr><td>Shop → checkout</td><td>NYC order: hoodie + book shows $0.27 shipping tax. Ship a $200 or $300 Clothing coat to MA or RI to see excess-only tax on just the amount above the limit.</td></tr>
+</table></div>
+<p class="lede">Type a path into the address bar at the bottom of the Playground window.</p>
+</section>
+</main>

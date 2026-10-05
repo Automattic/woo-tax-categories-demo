@@ -1,0 +1,6 @@
+*.zip
+.DS_Store
+playground/playground-url.txt
+
+# Spacefast local state (non-secret space id, but conventionally untracked).
+.spacefast/

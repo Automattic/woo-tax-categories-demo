@@ -1,0 +1,125 @@
+/* Tax categories prototype: reviewer guide. Matches the mockups in the requirements doc
+   (purple dashed outline, purple "New" badge). */
+:root {
+	--wctc-new: #7a4fc9;
+	--wctc-new-line: #8a63d2;
+	--wctc-new-tint: #f5f1fc;
+	--wctc-tip-bg: #1d2327;
+	--wctc-tip-fg: #ffffff;
+}
+
+/* Outline on every new field, column header or section. */
+.wctc-new {
+	outline: 1.5px dashed var(--wctc-new-line) !important;
+	outline-offset: 2px;
+	border-radius: 4px;
+}
+tr.wctc-new { outline-offset: -2px; }
+th.wctc-new { outline-offset: -3px; }
+.wctc-touring { outline: 2px solid var(--wctc-new) !important; outline-offset: 3px; }
+
+/* The columns this plugin adds (Products list, Categories list) have multi-word labels
+   ("Tax category") plus a New badge. Without a min-width, WordPress's auto-sized wp-list-table
+   can squeeze the TH to one letter per line; with pure `nowrap`, the text overflows and visually
+   overlaps the neighbouring column. A fixed width lets the words break on the space between
+   them, keeping the header stable regardless of neighbour widths. */
+th.column-wctc, th.manage-column.column-wctc {
+	min-width: 8em;
+	width: 8em;
+	word-wrap: normal;
+	overflow-wrap: break-word;
+}
+th.column-wctc .wctc-badge { display: inline-block; margin-top: 2px; }
+
+/* "New" badge with a tooltip on hover or keyboard focus. */
+.wctc-badge {
+	position: relative;
+	display: inline-block;
+	margin-left: 6px;
+	padding: 0 7px;
+	border-radius: 9px;
+	background: var(--wctc-new);
+	color: #fff;
+	font-size: 10.5px;
+	font-weight: 600;
+	line-height: 17px;
+	letter-spacing: .02em;
+	vertical-align: 1px;
+	cursor: help;
+	white-space: nowrap;
+	text-transform: none;
+}
+.wctc-item-notes > .wctc-badge { margin: 0 0 4px; }
+.wctc-badge-static { cursor: default; margin-left: 0; }
+.wctc-badge:focus-visible { outline: 2px solid var(--wctc-new); outline-offset: 2px; }
+.wctc-badge:not(.wctc-badge-static):hover::after,
+.wctc-badge:not(.wctc-badge-static):focus::after {
+	content: attr(data-tip);
+	position: absolute;
+	z-index: 100000;
+	left: 0;
+	top: calc(100% + 8px);
+	width: 280px;
+	padding: 8px 10px;
+	border-radius: 6px;
+	background: var(--wctc-tip-bg);
+	color: var(--wctc-tip-fg);
+	font-size: 12.5px;
+	font-weight: 400;
+	line-height: 1.45;
+	letter-spacing: 0;
+	white-space: normal;
+	box-shadow: 0 4px 14px rgba(0, 0, 0, .18);
+}
+.wctc-badge:not(.wctc-badge-static):hover::before,
+.wctc-badge:not(.wctc-badge-static):focus::before {
+	content: "";
+	position: absolute;
+	z-index: 100001;
+	left: 10px;
+	top: calc(100% + 3px);
+	border: 5px solid transparent;
+	border-bottom-color: var(--wctc-tip-bg);
+}
+/* Headers near the right edge open the tooltip leftwards. */
+th.column-wctc .wctc-badge:hover::after,
+th.column-wctc .wctc-badge:focus::after { left: auto; right: 0; }
+
+/* "What's new on this screen" banner. */
+.wctc-banner {
+	margin: 12px 0 16px;
+	padding: 12px 16px;
+	max-width: 980px;
+	background: var(--wctc-new-tint);
+	border: 1.5px dashed var(--wctc-new-line);
+	border-radius: 6px;
+	color: #1d2327;
+}
+.wctc-banner-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+.wctc-banner-title { font-size: 14px; }
+.wctc-banner-actions { margin-left: auto; display: inline-flex; align-items: center; gap: 12px; }
+.wctc-banner .button-primary { background: var(--wctc-new); border-color: var(--wctc-new); }
+.wctc-banner .button-primary:hover, .wctc-banner .button-primary:focus { background: #6640b8; border-color: #6640b8; }
+.wctc-banner .button-link { color: var(--wctc-new); }
+.wctc-banner-body { margin-top: 10px; max-width: 760px; }
+.wctc-banner-body p { margin: 0 0 8px; }
+.wctc-banner-body h4 { margin: 12px 0 6px; font-size: 13px; }
+.wctc-banner-body ol { margin: 0 0 10px 20px; }
+.wctc-banner-body li { margin-bottom: 4px; }
+.wctc-banner.is-collapsed .wctc-banner-body { display: none; }
+.wctc-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; color: #50575e; font-size: 12.5px; }
+.wctc-legend-swatch { width: 22px; height: 12px; border: 1.5px dashed var(--wctc-new-line); border-radius: 3px; }
+
+/* Tour pointers. */
+.wctc-pointer .wp-pointer-content h3 { background: var(--wctc-new); border-color: var(--wctc-new); }
+.wctc-pointer .wp-pointer-content h3::before { color: var(--wctc-new); }
+.wctc-pointer.wp-pointer-top .wp-pointer-arrow { border-bottom-color: var(--wctc-new); }
+.wctc-pointer.wp-pointer-top .wp-pointer-arrow-inner { border-bottom-color: var(--wctc-new); }
+.wctc-step { float: right; font-weight: 400; font-size: 12px; opacity: .85; margin-right: 4px; }
+.wctc-tour-buttons { display: flex; align-items: center; gap: 8px; width: 100%; }
+.wctc-tour-buttons .wctc-tour-close { margin-right: auto; color: #50575e; }
+.wctc-pointer .button-primary { background: var(--wctc-new); border-color: var(--wctc-new); }
+
+@media (prefers-reduced-motion: reduce) {
+	.wctc-pointer { transition: none !important; }
+}
